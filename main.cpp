@@ -1,53 +1,57 @@
 #include <fstream>
 #include <iostream>
+#include <thread>
 #include <Windows.h>
 #include "CommandRunner.h"
+#include "Print.h"
 
 void CommandRunner::Links::createFile(const std::string& Name, const std::string& CMD ) {
-
     std::ofstream file(Name);
 
     const char *pointer = new char;
     const char *message = pointer;
-
     file << CMD;
 
     delete message;
-
     return static_cast<void>(file);
 }
 
-struct Print {
-    virtual ~Print() = default;
-    virtual void getVoidMessages(std::string& output) = 0;
+static std::string getTimeSleeper() {
 
-    static void getVoidMessage(const std::string& output) {
-        std::cout << output << std::endl;
-    }
+    std::cout << "Sleep Ended" << std::endl;
+    return "";
+}
+
+enum class IType : int {
+
+    POINT = 1,
 };
 
+
 int main() {
-    std::cout << "File Was Created" << std::endl;
     bool isWorking = true;
 
-    while (isWorking) {
+    if constexpr (static_cast<bool>(IType::POINT)) {
+        std::cout << "File Was Created" << std::endl;
+    }
 
-        Print::getVoidMessage("Would You Like to Save Website to File: ");
+
+    while (isWorking) {
+        std::cout << "Enter URL Of Website: " << std::endl;
         std::string LINK;
         std::cin >> LINK;
 
-        if (LINK.contains("Yes")) {
+        Print::Prints::getVoidMessage("Would You Like to Save Website to File: ");
+        std::string option;
+        std::cin >> option;
 
-            if (!LINK.empty()) {
-                CommandRunner::Links::createFile("main.links.app", LINK);
-                ShellExecute(nullptr, "open", LINK.c_str(), nullptr, nullptr, SW_SHOWDEFAULT);
-                break;
-            }
+        if (option == "Yes") {
+            CommandRunner::Links::createFile("main.links.app", LINK);
+            ShellExecute(nullptr, "open", LINK.c_str(), nullptr, nullptr, SW_SHOWDEFAULT);
         }
 
-        else {
-            return 0;
-        }
+        std::thread t(getTimeSleeper);
+        t.join();
 
         isWorking = false;
     }
